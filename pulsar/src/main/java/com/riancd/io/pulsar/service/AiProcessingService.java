@@ -4,6 +4,8 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AiProcessingService {
 
@@ -15,7 +17,7 @@ public class AiProcessingService {
         this.embeddingModel = embeddingModel;
     }
 
-    public String processNewsAndgetSummary(String rawNewsText) {
+    public String processNewsAndGetSummary(String rawNewsText) {
         //Prompt de instruções para a IA
         String prompt = """
                 Você é um assistente de curadoria de conteúdo.
@@ -27,6 +29,10 @@ public class AiProcessingService {
 
         // Gerar a resposta usando o modelo de linguagem Llma3
         return chatModel.generate(prompt);
+    }
+
+    public List<Float> generateEmbedding(String text) {
+        return embeddingModel.embed(text).content().vectorAsList();
     }
 
 }

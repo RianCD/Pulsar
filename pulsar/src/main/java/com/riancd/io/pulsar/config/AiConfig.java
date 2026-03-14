@@ -6,6 +6,7 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
 
@@ -33,5 +34,10 @@ public class AiConfig {
                 .modelName("all-minilm")
                 .timeout(Duration.ofMinutes(2))
                 .build();
+    }
+
+    @Bean
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
     }
 }

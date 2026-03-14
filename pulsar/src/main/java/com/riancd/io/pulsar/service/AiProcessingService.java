@@ -1,5 +1,6 @@
 package com.riancd.io.pulsar.service;
 
+import com.pgvector.PGvector;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
@@ -35,4 +36,12 @@ public class AiProcessingService {
         return embeddingModel.embed(text).content().vectorAsList();
     }
 
+    public float[] generateEmbeddingAsFloatArray(String text) {
+        java.util.List<Float> embedding = generateEmbedding(text);
+        float[] vectorArray = new float[embedding.size()];
+        for (int i = 0; i < embedding.size(); i++) {
+            vectorArray[i] = embedding.get(i);
+        }
+        return vectorArray; // Retorna o array primitivo puro
+    }
 }

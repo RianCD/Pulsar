@@ -9,12 +9,16 @@ import com.riancd.io.pulsar.repository.NewsRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class NewsService {
 
+    private static final Logger log = LoggerFactory.getLogger(NewsService.class);
     private final NewsRepository repository;
     private final NewsApiClient apiClient;
     private final AiProcessingService aiService;
@@ -53,44 +57,44 @@ public class NewsService {
     // Executa a cada 1 hora (3600000 milissegundos)
     @Scheduled(fixedRate = 3600000)
     public void fetchAndProcessNewsScheduled() {
-        System.out.println("\n=======================================================");
-        System.out.println("Iniciando Pipeline Automática do Pulsar (Agendamento)...");
-        System.out.println("=======================================================\n");
+        log.info("Iniciando Pipeline Automática do Pulsar (Agendamento)...");
 
-        System.out.println("1. Buscando notícias de tecnologia na Mediastack...");
-        MediastackResponse response = apiClient.fetchRecentTechnolyNews();
+        log.info("1. Buscando notícias de tecnologia na Mediastack...");
+        try {
+            MediastackResponse response = apiClient.fetchRecentTechnolyNews();
 
-        if (response == null || response.data().isEmpty()) {
-            System.out.println("Nenhuma notícia encontrada ou erro na API");
-            return;
+            if (response == null || response.data().isEmpty()) {
+                log.warn("Nenhuma notícia encontrada ou erro na API");
+                return;
+            }
+
+            log.info("Foram encontradas {} notícias. Iniciando processamento...", response.data().size());
+
+            for (MediastackArticle article : response.data()) {
+                log.info("Processando: {}", article.title());
+                String rawText = article.title() + " - " + article.description();
+
+                log.info("Gerando resumo com Llama 3...");
+                String aiSummaryAndSentiment = aiService.processNewsAndGetSummary(rawText);
+
+                log.info("Gerando vetor de embedding com All-MiniLM...");
+                float[] embeddingVector = aiService.generateEmbeddingAsFloatArray(rawText);
+
+                log.info("Salvando no supabase...");
+                News news = new News();
+                news.setTitle(article.title());
+                news.setRawContent(rawText);
+                news.setSummary(aiSummaryAndSentiment);
+                news.setSentiment("Processado");
+                news.setEmbedding(embeddingVector);
+
+                repository.save(news);
+                log.info("Notícia '{}' processada e salva com sucesso!", article.title());
+            }
+
+            log.info("Pipeline Finalizada! Os novos dados já estão na nuvem.");
+        } catch (Exception e) {
+            log.error("Erro durante o processamento do pipeline: {}", e.getMessage(), e);
         }
-
-        System.out.println("Foram encontradas " + response.data().size() + " notícias. Iniciando processamento...\n");
-
-        for (MediastackArticle article : response.data()) {
-            System.out.println("Processando: " + article.title());
-            String rawText = article.title() + " - " + article.description();
-
-            System.out.println("Gerando resumo com Llama 3...");
-            String aiSummaryAndSentiment = aiService.processNewsAndGetSummary(rawText);
-
-            System.out.println("Gerando vetor de embedding com All-MiniLM...");
-            float[] embeddingVector = aiService.generateEmbeddingAsFloatArray(rawText);
-
-            System.out.println("Salvando no supabase...");
-            News news = new News();
-            news.setTitle(article.title());
-            news.setRawContent(rawText);
-            news.setSummary(aiSummaryAndSentiment);
-            news.setSentiment("Processado");
-            news.setEmbedding(embeddingVector);
-
-            repository.save(news);
-            System.out.println("Notícia processada e salva com sucesso!\n");
-        }
-
-        System.out.println("=======================================================");
-        System.out.println("Pipeline Finalizada! Os novos dados já estão na nuvem.");
-        System.out.println("=======================================================\n");
     }
 }

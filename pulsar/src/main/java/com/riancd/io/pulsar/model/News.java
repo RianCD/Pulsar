@@ -29,6 +29,15 @@ public class News {
     public News() {
     }
 
+    public News(Long id, String title, String rawContent, String summary, String sentiment, float[] embedding) {
+        this.id = id;
+        this.title = title;
+        this.rawContent = rawContent;
+        this.summary = summary;
+        this.sentiment = sentiment;
+        this.embedding = embedding;
+    }
+
     public Long getId() {
         return id;
     }

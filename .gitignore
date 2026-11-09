@@ -1,0 +1,5 @@
+# Credenciais locais em qualquer diretorio; exemplos podem ser versionados.
+.env
+.env.*
+!.env.example
+!.env.*.example

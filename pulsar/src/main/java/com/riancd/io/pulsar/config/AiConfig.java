@@ -6,38 +6,29 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestClient;
-
-import java.time.Duration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @Configuration
+@EnableConfigurationProperties(OllamaProperties.class)
 public class AiConfig {
 
-    // Porta padrão onde o contêiner do Ollama está rodando
-    private static final String OLLAMA_URL = "http://localhost:11434";
-
     @Bean
-    public ChatLanguageModel chatLanguageModel() {
+    public ChatLanguageModel chatLanguageModel(OllamaProperties properties) {
         return OllamaChatModel.builder()
-                .baseUrl(OLLAMA_URL)
-                .modelName("llama3")
-                .timeout(Duration.ofMinutes(2))
-                // Temperature define a criatividade (0.0 a 1.0).
-                .temperature(0.3)
+                .baseUrl(properties.baseUrl().toString())
+                .modelName(properties.chatModel())
+                .timeout(properties.chatTimeout())
+                .temperature(properties.temperature())
                 .build();
     }
 
     @Bean
-    public EmbeddingModel embeddingModel() {
+    public EmbeddingModel embeddingModel(OllamaProperties properties) {
         return OllamaEmbeddingModel.builder()
-                .baseUrl(OLLAMA_URL)
-                .modelName("all-minilm")
-                .timeout(Duration.ofMinutes(2))
+                .baseUrl(properties.baseUrl().toString())
+                .modelName(properties.embeddingModel())
+                .timeout(properties.embeddingTimeout())
                 .build();
     }
 
-    @Bean
-    public RestClient.Builder restClientBuilder() {
-        return RestClient.builder();
-    }
 }

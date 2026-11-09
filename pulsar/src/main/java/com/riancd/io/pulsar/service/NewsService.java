@@ -6,7 +6,6 @@ import com.riancd.io.pulsar.dto.MediastackResponse;
 import com.riancd.io.pulsar.dto.NewsResponse;
 import com.riancd.io.pulsar.model.News;
 import com.riancd.io.pulsar.repository.NewsRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import org.slf4j.Logger;
@@ -54,9 +53,7 @@ public class NewsService {
                 .collect(Collectors.toList());
     }
 
-    // Executa a cada 1 hora (3600000 milissegundos)
-    @Scheduled(fixedRate = 3600000)
-    public void fetchAndProcessNewsScheduled() {
+    public void fetchAndProcessNews() {
         log.info("Iniciando Pipeline Automática do Pulsar (Agendamento)...");
 
         log.info("1. Buscando notícias de tecnologia na Mediastack...");
@@ -74,10 +71,10 @@ public class NewsService {
                 log.info("Processando: {}", article.title());
                 String rawText = article.title() + " - " + article.description();
 
-                log.info("Gerando resumo com Llama 3...");
+                log.info("Gerando resumo com o modelo de linguagem configurado...");
                 String aiSummaryAndSentiment = aiService.processNewsAndGetSummary(rawText);
 
-                log.info("Gerando vetor de embedding com All-MiniLM...");
+                log.info("Gerando vetor com o modelo de embedding configurado...");
                 float[] embeddingVector = aiService.generateEmbeddingAsFloatArray(rawText);
 
                 log.info("Salvando no supabase...");

@@ -1,6 +1,5 @@
 package com.riancd.io.pulsar.service;
 
-import com.pgvector.PGvector;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public class AiProcessingService {
     }
 
     public String processNewsAndGetSummary(String rawNewsText) {
-        log.debug("Generating summary and sentiment analysis via Llama 3...");
+        log.debug("Generating summary and sentiment analysis via the configured chat model...");
         //Prompt de instruções para a IA
         String prompt = """
                 Você é um assistente de curadoria de conteúdo.
@@ -32,14 +31,13 @@ public class AiProcessingService {
                 Notícia:
                 """ + rawNewsText;
 
-        // Gerar a resposta usando o modelo de linguagem Llma3
         String response = chatModel.generate(prompt);
         log.debug("Summary and sentiment generated successfully.");
         return response;
     }
 
     public List<Float> generateEmbedding(String text) {
-        log.debug("Generating embeddings via All-MiniLM...");
+        log.debug("Generating embeddings via the configured embedding model...");
         List<Float> embedding = embeddingModel.embed(text).content().vectorAsList();
         log.debug("Embeddings generated successfully.");
         return embedding;

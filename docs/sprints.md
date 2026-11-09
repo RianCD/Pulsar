@@ -22,9 +22,13 @@ As sprints seguem a ordem das dependências técnicas. Cada tarefa pode virar um
 
 ### TASK-02 — Organizar configurações por ambiente
 
-- [ ] Criar perfis de desenvolvimento, teste e produção.
-- [ ] Tornar configuráveis o endereço do Ollama, modelos, timeouts, quantidade de notícias e intervalo de coleta.
-- [ ] Permitir desabilitar o agendamento para desenvolvimento e testes.
+- [x] Criar perfis de desenvolvimento, teste e produção.
+- [x] Tornar configuráveis o endereço do Ollama, modelos, timeouts, quantidade de notícias e intervalo de coleta.
+- [x] Permitir desabilitar o agendamento para desenvolvimento e testes.
+
+**Status:** implementada na branch `T02`. O perfil padrão é `dev`; somente ele importa o `.env`. O perfil `test` desabilita a autoconfiguração de banco/JPA e utiliza mocks fornecidos pela suíte. O perfil `prod` recebe credenciais pelo ambiente e valida o esquema sem alterá-lo. A coleta exige ativação explícita, com intervalo e atraso inicial configuráveis.
+
+**Verificação técnica:** 14 testes automatizados aprovados, cobrindo isolamento dos perfis, precedência de configuração, valores inválidos, quantidade de notícias enviada ao cliente HTTP simulado, registro condicional do agendamento e inicialização da aplicação em `test` com a listagem disponível. Nenhum acesso a Supabase, Mediastack ou Ollama real foi necessário. Consulte o README e o `.env.example` para as opções de execução.
 
 **Critério de aceite:** executar testes ou iniciar o ambiente de desenvolvimento não exige consumir APIs externas.
 
